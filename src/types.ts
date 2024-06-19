@@ -4,6 +4,8 @@ import { ValidationError } from 'express-validator'
 export type User = {
   id: number
   name: string
+  login: string
+  password: string
 }
 
 export type RequestWithParams<T> = Request<T>

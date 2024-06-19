@@ -1,5 +1,8 @@
 import request from 'supertest'
-import { UserCreateUpdateModel } from '../../src/models/UserCreateUpdateModel'
+import {
+  UserCreateModel,
+  UserUpdateModel,
+} from '../../src/models/UserCreateUpdateModel'
 import { app } from '../../src/app'
 
 describe('users', () => {
@@ -13,7 +16,11 @@ describe('users', () => {
     await request(app).get('/api/users/999999').expect(404)
   })
   it('Создать пользователя', async () => {
-    const newData: UserCreateUpdateModel = { name: 'new' }
+    const newData: UserCreateModel = {
+      name: 'new',
+      login: 'new',
+      password: 'new',
+    }
     await request(app).post('/api/users').send(newData).expect(201)
   })
   it('Создать пустого пользователя', async () => {
@@ -22,8 +29,8 @@ describe('users', () => {
   it('Удалить пользователя', async () => {
     await request(app).delete('/api/users/1').expect(200)
   })
-  it('should rename user by id', async () => {
-    const updatedData: UserCreateUpdateModel = { name: 'new name' }
+  it('Изменить имя пользователя по id', async () => {
+    const updatedData: UserUpdateModel = { name: 'new name' }
     await request(app).put('/api/users/2').send(updatedData).expect(200)
   })
 })

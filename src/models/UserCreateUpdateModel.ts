@@ -1,6 +1,7 @@
+import { User } from '../types'
+
 /**
  * data of new user
  */
-export type UserCreateUpdateModel = {
-  name: string
-}
+export type UserCreateModel = Pick<User, 'name' | 'login' | 'password'>
+export type UserUpdateModel = Pick<User, 'name'>

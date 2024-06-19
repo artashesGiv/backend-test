@@ -1,4 +1,4 @@
-import express, { Response } from 'express'
+import express, { NextFunction, Response } from 'express'
 import { UserViewModel } from '../models/UserViewModel'
 import {
   RequestWithBody,
@@ -7,8 +7,10 @@ import {
   User,
 } from '../types'
 import { URIParamsUserIdModel } from '../models/URIParamsUserIdModel'
-import { UserCreateUpdateModel } from '../models/UserCreateUpdateModel'
-import { db } from '../db/db'
+import {
+  UserCreateModel,
+  UserUpdateModel,
+} from '../models/UserCreateUpdateModel'
 import { userRepository } from '../repositories/user-repository'
 import { body, param } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
@@ -34,6 +36,20 @@ const paramIdValidation = param('id')
   .isNumeric()
   .withMessage('id should be is number')
 
+const userIsFoundValidation = (
+  req: RequestWithParams<URIParamsUserIdModel>,
+  res: Response,
+  next: NextFunction,
+) => {
+  const user = userRepository.getUserById(+req.params.id)
+  if (user) {
+    next()
+  } else {
+    res.status(StatusCodes.NOT_FOUND).end()
+  }
+}
+
+// routes
 userRouter.get('/', (_, res: Response<UserViewModel[]>) => {
   res
     .json(userRepository.getUsers().map(getUserViewModel))
@@ -43,23 +59,14 @@ userRouter.get('/', (_, res: Response<UserViewModel[]>) => {
 
 userRouter.get(
   '/:id([0-9]+)',
+  userIsFoundValidation,
   (
     req: RequestWithParams<URIParamsUserIdModel>,
     res: Response<UserViewModel>,
   ) => {
     const user = userRepository.getUserById(+req.params.id)
 
-    if (user) {
-      res.json({
-        id: user.id,
-        name: user.name,
-      })
-      res.status(StatusCodes.OK)
-    } else {
-      res.status(StatusCodes.NOT_FOUND)
-    }
-
-    res.end()
+    res.json(getUserViewModel(user!)).status(StatusCodes.OK).end()
   },
 )
 
@@ -67,58 +74,36 @@ userRouter.post(
   '/',
   userNameValidation,
   inputValidationMiddleware,
-  (
-    req: RequestWithBody<UserCreateUpdateModel>,
-    res: Response<UserViewModel>,
-  ) => {
+  (req: RequestWithBody<UserCreateModel>, res: Response<UserViewModel>) => {
     const user = userRepository.createUser(req.body)
-    if (user) {
-      res.status(StatusCodes.CREATED).json(getUserViewModel(user))
-    } else {
-      res.status(StatusCodes.BAD_REQUEST)
-    }
-    res.end()
+
+    res.status(StatusCodes.CREATED).json(getUserViewModel(user)).end()
   },
 )
 
 userRouter.put(
   '/:id',
   paramIdValidation,
+  userIsFoundValidation,
   userNameValidation,
   inputValidationMiddleware,
   (
-    req: RequestWithParamsAndBody<URIParamsUserIdModel, UserCreateUpdateModel>,
+    req: RequestWithParamsAndBody<URIParamsUserIdModel, UserUpdateModel>,
     res: Response<UserViewModel>,
   ) => {
-    const user = db.users.find(user => user.id === +req.params.id)
+    const updatedUser = userRepository.updateUser(+req.params.id, req.body)
 
-    if (user) {
-      user.name = req.body.name
-      res.status(StatusCodes.OK)
-      res.json(getUserViewModel(user))
-    } else {
-      res.status(StatusCodes.NOT_FOUND)
-    }
-
-    res.end()
+    res.status(StatusCodes.OK).json(getUserViewModel(updatedUser)).end()
   },
 )
 
 userRouter.delete(
   '/:id',
   paramIdValidation,
+  userIsFoundValidation,
   (req: RequestWithParams<URIParamsUserIdModel>, res) => {
-    if (req.params.id) {
-      const user = db.users.find(user => user.id === Number(req.params.id))
-      if (user) {
-        db.users.splice(db.users.indexOf(user), 1)
-        res.status(StatusCodes.OK)
-      } else {
-        res.status(StatusCodes.NOT_FOUND)
-      }
-    } else {
-      res.status(StatusCodes.BAD_REQUEST)
-    }
-    res.end()
+    const deleteUserId = userRepository.deleteUser(+req.params.id)
+
+    res.status(StatusCodes.OK).json(deleteUserId).end()
   },
 )
