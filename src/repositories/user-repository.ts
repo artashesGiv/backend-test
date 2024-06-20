@@ -1,54 +1,43 @@
-import { db } from '../db/db'
+import { client } from '../db/db'
 import {
   UserCreateModel,
   UserUpdateModel,
 } from '../models/UserCreateUpdateModel'
 import { User } from '../types'
 
+const userCollection = client.db('test').collection<User>('users')
+
 export const userRepository = {
-  getUsers() {
-    return db.users
+  async getUsers() {
+    return userCollection.find({}).toArray()
   },
 
-  getUserById(id: Maybe<number>) {
-    if (!id) {
-      return null
-    }
-    return db.users.find(user => user.id === id)
+  async getUserById(id: User['id']) {
+    return userCollection.findOne({ id })
   },
 
-  createUser(user: UserCreateModel) {
+  async createUser(user: UserCreateModel) {
     const newUser: User = {
       id: +new Date(),
       name: user.name,
       login: user.login,
       password: user.password,
     }
-    db.users.push(newUser)
+
+    await userCollection.insertOne(newUser)
+
     return newUser
   },
 
-  updateUser(id: number, user: UserUpdateModel) {
-    const userToUpdate = db.users.find(user => user.id === id)!
+  async updateUser(id: User['id'], user: UserUpdateModel) {
+    const result = await userCollection.updateOne({ id }, { $set: user })
 
-    Object.entries(user).forEach(([key, value]) => {
-      switch (key as keyof UserUpdateModel) {
-        case 'name':
-          userToUpdate.name = value
-          break
-        default:
-          break
-      }
-    })
-
-    return userToUpdate
+    return !!result.matchedCount
   },
 
-  deleteUser(id: number) {
-    const user = db.users.find(user => user.id === id)!
-    const deletedId = user.id
+  async deleteUser(id: User['id']) {
+    const result = await userCollection.deleteOne({ id })
 
-    db.users.splice(db.users.indexOf(user), 1)
-    return deletedId
+    return !!result.deletedCount
   },
 }
