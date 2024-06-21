@@ -3,7 +3,9 @@ import { User } from '../types'
 
 const mongoUri = process.env.mongoURI || 'mongodb://localhost:27017'
 
-export const client = new MongoClient(mongoUri)
+const client = new MongoClient(mongoUri)
+
+export const db = client.db(process.env.MAIN_DB)
 
 export const runDb = async () => {
   try {
@@ -15,41 +17,10 @@ export const runDb = async () => {
   }
 }
 
-export type Db = {
-  users: User[]
+export enum ALL_COLLECTIONS {
+  USERS = 'users',
 }
 
-export let db: Db = {
-  users: [
-    {
-      id: 1,
-      name: 'Art',
-      login: 'Art',
-      password: '1242',
-    },
-    {
-      id: 2,
-      name: 'David',
-      login: 'Art',
-      password: '1242',
-    },
-    {
-      id: 3,
-      name: 'Maxim',
-      login: 'Art',
-      password: '1242',
-    },
-    {
-      id: 4,
-      name: 'Karina',
-      login: 'Art',
-      password: '1242',
-    },
-    {
-      id: 5,
-      name: 'Marina',
-      login: 'Art',
-      password: '1242',
-    },
-  ],
+export const collections = {
+  [ALL_COLLECTIONS.USERS]: db.collection<User>(ALL_COLLECTIONS.USERS),
 }

@@ -1,19 +1,19 @@
-import { client } from '../db/db'
+import { collections } from '../db/db'
 import {
   UserCreateModel,
   UserUpdateModel,
 } from '../models/UserCreateUpdateModel'
 import { User } from '../types'
 
-const userCollection = client.db('test').collection<User>('users')
+const { users: usersCollection } = collections
 
 export const userRepository = {
   async getUsers() {
-    return userCollection.find({}).toArray()
+    return usersCollection.find({}).toArray()
   },
 
   async getUserById(id: User['id']) {
-    return userCollection.findOne({ id })
+    return usersCollection.findOne({ id })
   },
 
   async createUser(user: UserCreateModel) {
@@ -24,19 +24,19 @@ export const userRepository = {
       password: user.password,
     }
 
-    await userCollection.insertOne(newUser)
+    await usersCollection.insertOne(newUser)
 
     return newUser
   },
 
   async updateUser(id: User['id'], user: UserUpdateModel) {
-    const result = await userCollection.updateOne({ id }, { $set: user })
+    const result = await usersCollection.updateOne({ id }, { $set: user })
 
     return !!result.matchedCount
   },
 
   async deleteUser(id: User['id']) {
-    const result = await userCollection.deleteOne({ id })
+    const result = await usersCollection.deleteOne({ id })
 
     return !!result.deletedCount
   },

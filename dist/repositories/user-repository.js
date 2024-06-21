@@ -11,16 +11,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.userRepository = void 0;
 const db_1 = require("../db/db");
-const userCollection = db_1.client.db('test').collection('users');
+const { users: usersCollection } = db_1.collections;
 exports.userRepository = {
     getUsers() {
         return __awaiter(this, void 0, void 0, function* () {
-            return userCollection.find({}).toArray();
+            return usersCollection.find({}).toArray();
         });
     },
     getUserById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            return userCollection.findOne({ id });
+            return usersCollection.findOne({ id });
         });
     },
     createUser(user) {
@@ -31,19 +31,19 @@ exports.userRepository = {
                 login: user.login,
                 password: user.password,
             };
-            yield userCollection.insertOne(newUser);
+            yield usersCollection.insertOne(newUser);
             return newUser;
         });
     },
     updateUser(id, user) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield userCollection.updateOne({ id }, { $set: user });
+            const result = yield usersCollection.updateOne({ id }, { $set: user });
             return !!result.matchedCount;
         });
     },
     deleteUser(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield userCollection.deleteOne({ id });
+            const result = yield usersCollection.deleteOne({ id });
             return !!result.deletedCount;
         });
     },
