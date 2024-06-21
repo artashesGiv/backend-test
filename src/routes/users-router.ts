@@ -11,7 +11,7 @@ import {
   UserCreateModel,
   UserUpdateModel,
 } from '../models/UserCreateUpdateModel'
-import { userRepository } from '../repositories/user-repository'
+import { usersService } from '../domain/users-service'
 import { body, param } from 'express-validator'
 import { StatusCodes } from 'http-status-codes'
 import { inputValidationMiddleware } from '../middlewares/input-validation-middleware'
@@ -41,7 +41,7 @@ const userIsFoundValidation = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const user = await userRepository.getUserById(+req.params.id)
+  const user = await usersService.getUserById(+req.params.id)
   if (user) {
     next()
   } else {
@@ -51,7 +51,7 @@ const userIsFoundValidation = async (
 
 // routes
 userRouter.get('/', async (_, res: Response<UserViewModel[]>) => {
-  const users = await userRepository.getUsers()
+  const users = await usersService.getUsers()
 
   res.json(users.map(getUserViewModel)).status(StatusCodes.OK).end()
 })
@@ -63,7 +63,7 @@ userRouter.get(
     req: RequestWithParams<URIParamsUserIdModel>,
     res: Response<UserViewModel>,
   ) => {
-    const user = await userRepository.getUserById(+req.params.id)
+    const user = await usersService.getUserById(+req.params.id)
 
     res.json(getUserViewModel(user!)).status(StatusCodes.OK).end()
   },
@@ -77,7 +77,7 @@ userRouter.post(
     req: RequestWithBody<UserCreateModel>,
     res: Response<UserViewModel>,
   ) => {
-    const user = await userRepository.createUser(req.body)
+    const user = await usersService.createUser(req.body)
 
     res.status(StatusCodes.CREATED).json(getUserViewModel(user)).end()
   },
@@ -93,7 +93,7 @@ userRouter.put(
     req: RequestWithParamsAndBody<URIParamsUserIdModel, UserUpdateModel>,
     res: Response<UserViewModel>,
   ) => {
-    await userRepository.updateUser(+req.params.id, req.body)
+    await usersService.updateUser(+req.params.id, req.body)
 
     res.status(StatusCodes.OK).end()
   },
@@ -104,7 +104,7 @@ userRouter.delete(
   paramIdValidation,
   userIsFoundValidation,
   async (req: RequestWithParams<URIParamsUserIdModel>, res) => {
-    const deleteUserId = await userRepository.deleteUser(+req.params.id)
+    const deleteUserId = await usersService.deleteUser(+req.params.id)
 
     res.status(StatusCodes.OK).json(deleteUserId).end()
   },

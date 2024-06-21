@@ -22,5 +22,5 @@ export enum ALL_COLLECTIONS {
 }
 
 export const collections = {
-  [ALL_COLLECTIONS.USERS]: db.collection<User>(ALL_COLLECTIONS.USERS),
+  usersCollection: db.collection<User>(ALL_COLLECTIONS.USERS),
 }

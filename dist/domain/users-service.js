@@ -9,36 +9,38 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.userRepository = void 0;
-const db_1 = require("../db/db");
-const { usersCollection } = db_1.collections;
-exports.userRepository = {
+exports.usersService = void 0;
+const users_repository_1 = require("../repositories/users-repository");
+exports.usersService = {
     getUsers() {
         return __awaiter(this, void 0, void 0, function* () {
-            return usersCollection.find({}).toArray();
+            return yield users_repository_1.usersRepository.getUsers();
         });
     },
     getUserById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            return usersCollection.findOne({ id });
+            return yield users_repository_1.usersRepository.getUserById(id);
         });
     },
     createUser(user) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield usersCollection.insertOne(user);
-            return user;
+            const newUser = {
+                id: +new Date(),
+                name: user.name,
+                login: user.login,
+                password: user.password,
+            };
+            return yield users_repository_1.usersRepository.createUser(newUser);
         });
     },
     updateUser(id, user) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield usersCollection.updateOne({ id }, { $set: user });
-            return !!result.matchedCount;
+            return yield users_repository_1.usersRepository.updateUser(id, user);
         });
     },
     deleteUser(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield usersCollection.deleteOne({ id });
-            return !!result.deletedCount;
+            return yield users_repository_1.usersRepository.deleteUser(id);
         });
     },
 };

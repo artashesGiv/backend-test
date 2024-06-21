@@ -30,5 +30,5 @@ var ALL_COLLECTIONS;
     ALL_COLLECTIONS["USERS"] = "users";
 })(ALL_COLLECTIONS || (exports.ALL_COLLECTIONS = ALL_COLLECTIONS = {}));
 exports.collections = {
-    [ALL_COLLECTIONS.USERS]: exports.db.collection(ALL_COLLECTIONS.USERS),
+    usersCollection: exports.db.collection(ALL_COLLECTIONS.USERS),
 };

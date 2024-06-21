@@ -9,10 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.userRepository = void 0;
+exports.usersRepository = void 0;
 const db_1 = require("../db/db");
 const { usersCollection } = db_1.collections;
-exports.userRepository = {
+exports.usersRepository = {
     getUsers() {
         return __awaiter(this, void 0, void 0, function* () {
             return usersCollection.find({}).toArray();

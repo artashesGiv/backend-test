@@ -1,13 +1,10 @@
 import { collections } from '../db/db'
-import {
-  UserCreateModel,
-  UserUpdateModel,
-} from '../models/UserCreateUpdateModel'
+import { UserUpdateModel } from '../models/UserCreateUpdateModel'
 import { User } from '../types'
 
-const { users: usersCollection } = collections
+const { usersCollection } = collections
 
-export const userRepository = {
+export const usersRepository = {
   async getUsers() {
     return usersCollection.find({}).toArray()
   },
@@ -16,17 +13,9 @@ export const userRepository = {
     return usersCollection.findOne({ id })
   },
 
-  async createUser(user: UserCreateModel) {
-    const newUser: User = {
-      id: +new Date(),
-      name: user.name,
-      login: user.login,
-      password: user.password,
-    }
-
-    await usersCollection.insertOne(newUser)
-
-    return newUser
+  async createUser(user: User) {
+    await usersCollection.insertOne(user)
+    return user
   },
 
   async updateUser(id: User['id'], user: UserUpdateModel) {

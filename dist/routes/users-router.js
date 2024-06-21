@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getUserViewModel = exports.userRouter = void 0;
 const express_1 = __importDefault(require("express"));
-const user_repository_1 = require("../repositories/user-repository");
+const users_service_1 = require("../domain/users-service");
 const express_validator_1 = require("express-validator");
 const http_status_codes_1 = require("http-status-codes");
 const input_validation_middleware_1 = require("../middlewares/input-validation-middleware");
@@ -36,7 +36,7 @@ const paramIdValidation = (0, express_validator_1.param)('id')
     .isNumeric()
     .withMessage('id should be is number');
 const userIsFoundValidation = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = yield user_repository_1.userRepository.getUserById(+req.params.id);
+    const user = yield users_service_1.usersService.getUserById(+req.params.id);
     if (user) {
         next();
     }
@@ -46,22 +46,22 @@ const userIsFoundValidation = (req, res, next) => __awaiter(void 0, void 0, void
 });
 // routes
 exports.userRouter.get('/', (_, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const users = yield user_repository_1.userRepository.getUsers();
+    const users = yield users_service_1.usersService.getUsers();
     res.json(users.map(exports.getUserViewModel)).status(http_status_codes_1.StatusCodes.OK).end();
 }));
 exports.userRouter.get('/:id([0-9]+)', userIsFoundValidation, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = yield user_repository_1.userRepository.getUserById(+req.params.id);
+    const user = yield users_service_1.usersService.getUserById(+req.params.id);
     res.json((0, exports.getUserViewModel)(user)).status(http_status_codes_1.StatusCodes.OK).end();
 }));
 exports.userRouter.post('/', userNameValidation, input_validation_middleware_1.inputValidationMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = yield user_repository_1.userRepository.createUser(req.body);
+    const user = yield users_service_1.usersService.createUser(req.body);
     res.status(http_status_codes_1.StatusCodes.CREATED).json((0, exports.getUserViewModel)(user)).end();
 }));
 exports.userRouter.put('/:id', paramIdValidation, userIsFoundValidation, userNameValidation, input_validation_middleware_1.inputValidationMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    yield user_repository_1.userRepository.updateUser(+req.params.id, req.body);
+    yield users_service_1.usersService.updateUser(+req.params.id, req.body);
     res.status(http_status_codes_1.StatusCodes.OK).end();
 }));
 exports.userRouter.delete('/:id', paramIdValidation, userIsFoundValidation, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const deleteUserId = yield user_repository_1.userRepository.deleteUser(+req.params.id);
+    const deleteUserId = yield users_service_1.usersService.deleteUser(+req.params.id);
     res.status(http_status_codes_1.StatusCodes.OK).json(deleteUserId).end();
 }));
