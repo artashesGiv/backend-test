@@ -1,7 +1,6 @@
 import express from 'express'
 import bodyParser from 'body-parser'
-import { userRouter } from './routes/users-router'
-import './types'
+import { userRouter } from '@/routes'
 
 export const app = express()
 

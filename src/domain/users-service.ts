@@ -1,17 +1,28 @@
-import { usersRepository } from '../repositories/users-repository'
-import {
-  UserCreateModel,
-  UserUpdateModel,
-} from '../models/UserCreateUpdateModel'
-import { User } from '../types'
+import { usersRepository } from '@/repositories'
+import { Users } from '@/types'
+import User = Users.User
+import UserViewModel = Users.UserViewModel
+import UserCreateModel = Users.UserCreateModel
+import UserUpdateModel = Users.UserUpdateModel
+
+const getUserViewModel = (user: User): UserViewModel => {
+  return {
+    id: user.id,
+    name: user.name,
+  }
+}
 
 export const usersService = {
   async getUsers() {
-    return await usersRepository.getUsers()
+    const users = await usersRepository.getUsers()
+
+    return users.map(getUserViewModel)
   },
 
   async getUserById(id: User['id']) {
-    return await usersRepository.getUserById(id)
+    const user = await usersRepository.getUserById(id)
+
+    return getUserViewModel(user!)
   },
 
   async createUser(user: UserCreateModel) {
@@ -22,7 +33,9 @@ export const usersService = {
       password: user.password,
     }
 
-    return await usersRepository.createUser(newUser)
+    const createdUser = await usersRepository.createUser(newUser)
+
+    return getUserViewModel(createdUser)
   },
 
   async updateUser(id: User['id'], user: UserUpdateModel) {

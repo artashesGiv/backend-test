@@ -1,5 +1,6 @@
 import { MongoClient } from 'mongodb'
-import { User } from '../types'
+import { Users } from '@/types'
+import User = Users.User
 
 const mongoUri = process.env.mongoURI || 'mongodb://localhost:27017'
 

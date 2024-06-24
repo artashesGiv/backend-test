@@ -10,16 +10,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.usersService = void 0;
-const users_repository_1 = require("../repositories/users-repository");
+const repositories_1 = require("@/repositories");
+const getUserViewModel = (user) => {
+    return {
+        id: user.id,
+        name: user.name,
+    };
+};
 exports.usersService = {
     getUsers() {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield users_repository_1.usersRepository.getUsers();
+            const users = yield repositories_1.usersRepository.getUsers();
+            return users.map(getUserViewModel);
         });
     },
     getUserById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield users_repository_1.usersRepository.getUserById(id);
+            const user = yield repositories_1.usersRepository.getUserById(id);
+            return getUserViewModel(user);
         });
     },
     createUser(user) {
@@ -30,17 +38,18 @@ exports.usersService = {
                 login: user.login,
                 password: user.password,
             };
-            return yield users_repository_1.usersRepository.createUser(newUser);
+            const createdUser = yield repositories_1.usersRepository.createUser(newUser);
+            return getUserViewModel(createdUser);
         });
     },
     updateUser(id, user) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield users_repository_1.usersRepository.updateUser(id, user);
+            return yield repositories_1.usersRepository.updateUser(id, user);
         });
     },
     deleteUser(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield users_repository_1.usersRepository.deleteUser(id);
+            return yield repositories_1.usersRepository.deleteUser(id);
         });
     },
 };

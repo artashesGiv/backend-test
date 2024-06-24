@@ -1,59 +1,30 @@
-import express, { NextFunction, Response } from 'express'
-import { UserViewModel } from '../models/UserViewModel'
-import {
-  RequestWithBody,
-  RequestWithParams,
-  RequestWithParamsAndBody,
-  User,
-} from '../types'
-import { URIParamsUserIdModel } from '../models/URIParamsUserIdModel'
-import {
-  UserCreateModel,
-  UserUpdateModel,
-} from '../models/UserCreateUpdateModel'
-import { usersService } from '../domain/users-service'
-import { body, param } from 'express-validator'
+import express, { Response } from 'express'
+import { usersService } from '@/domain'
 import { StatusCodes } from 'http-status-codes'
-import { inputValidationMiddleware } from '../middlewares/input-validation-middleware'
+import {
+  inputValidationMiddleware,
+  paramIdValidation,
+  userIsFoundValidation,
+  userLoginValidation,
+  userNameValidation,
+  userPasswordValidation,
+} from '@/middlewares'
+import { Route, Users } from '@/types'
+import RequestWithParams = Route.RequestWithParams
+import RequestWithBody = Route.RequestWithBody
+import RequestWithParamsAndBody = Route.RequestWithParamsAndBody
+import URIParamsUserIdModel = Users.URIParamsUserIdModel
+import UserViewModel = Users.UserViewModel
+import UserCreateModel = Users.UserCreateModel
+import UserUpdateModel = Users.UserUpdateModel
 
 export const userRouter = express.Router()
-
-export const getUserViewModel = (user: User): UserViewModel => {
-  return {
-    id: user.id,
-    name: user.name,
-  }
-}
-
-// local middlewares
-const userNameValidation = body('name')
-  .isString()
-  .isLength({ min: 3, max: 15 })
-  .withMessage('name length should be from 3 to 15 symbols')
-  .trim()
-
-const paramIdValidation = param('id')
-  .isNumeric()
-  .withMessage('id should be is number')
-
-const userIsFoundValidation = async (
-  req: RequestWithParams<URIParamsUserIdModel>,
-  res: Response,
-  next: NextFunction,
-) => {
-  const user = await usersService.getUserById(+req.params.id)
-  if (user) {
-    next()
-  } else {
-    res.status(StatusCodes.NOT_FOUND).end()
-  }
-}
 
 // routes
 userRouter.get('/', async (_, res: Response<UserViewModel[]>) => {
   const users = await usersService.getUsers()
 
-  res.json(users.map(getUserViewModel)).status(StatusCodes.OK).end()
+  res.json(users).status(StatusCodes.OK).end()
 })
 
 userRouter.get(
@@ -65,13 +36,15 @@ userRouter.get(
   ) => {
     const user = await usersService.getUserById(+req.params.id)
 
-    res.json(getUserViewModel(user!)).status(StatusCodes.OK).end()
+    res.json(user!).status(StatusCodes.OK).end()
   },
 )
 
 userRouter.post(
   '/',
   userNameValidation,
+  userLoginValidation,
+  userPasswordValidation,
   inputValidationMiddleware,
   async (
     req: RequestWithBody<UserCreateModel>,
@@ -79,7 +52,7 @@ userRouter.post(
   ) => {
     const user = await usersService.createUser(req.body)
 
-    res.status(StatusCodes.CREATED).json(getUserViewModel(user)).end()
+    res.status(StatusCodes.CREATED).json(user).end()
   },
 )
 

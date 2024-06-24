@@ -1,6 +1,7 @@
-import { collections } from '../db/db'
-import { UserUpdateModel } from '../models/UserCreateUpdateModel'
-import { User } from '../types'
+import { collections } from '@/db'
+import { Users } from '@/types'
+import User = Users.User
+import UserUpdateModel = Users.UserUpdateModel
 
 const { usersCollection } = collections
 

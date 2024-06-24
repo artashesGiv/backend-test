@@ -12,56 +12,30 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUserViewModel = exports.userRouter = void 0;
+exports.userRouter = void 0;
 const express_1 = __importDefault(require("express"));
-const users_service_1 = require("../domain/users-service");
-const express_validator_1 = require("express-validator");
+const domain_1 = require("@/domain");
 const http_status_codes_1 = require("http-status-codes");
-const input_validation_middleware_1 = require("../middlewares/input-validation-middleware");
+const middlewares_1 = require("@/middlewares");
 exports.userRouter = express_1.default.Router();
-const getUserViewModel = (user) => {
-    return {
-        id: user.id,
-        name: user.name,
-    };
-};
-exports.getUserViewModel = getUserViewModel;
-// local middlewares
-const userNameValidation = (0, express_validator_1.body)('name')
-    .isString()
-    .isLength({ min: 3, max: 15 })
-    .withMessage('name length should be from 3 to 15 symbols')
-    .trim();
-const paramIdValidation = (0, express_validator_1.param)('id')
-    .isNumeric()
-    .withMessage('id should be is number');
-const userIsFoundValidation = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = yield users_service_1.usersService.getUserById(+req.params.id);
-    if (user) {
-        next();
-    }
-    else {
-        res.status(http_status_codes_1.StatusCodes.NOT_FOUND).end();
-    }
-});
 // routes
 exports.userRouter.get('/', (_, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const users = yield users_service_1.usersService.getUsers();
-    res.json(users.map(exports.getUserViewModel)).status(http_status_codes_1.StatusCodes.OK).end();
+    const users = yield domain_1.usersService.getUsers();
+    res.json(users).status(http_status_codes_1.StatusCodes.OK).end();
 }));
-exports.userRouter.get('/:id([0-9]+)', userIsFoundValidation, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = yield users_service_1.usersService.getUserById(+req.params.id);
-    res.json((0, exports.getUserViewModel)(user)).status(http_status_codes_1.StatusCodes.OK).end();
+exports.userRouter.get('/:id([0-9]+)', middlewares_1.userIsFoundValidation, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield domain_1.usersService.getUserById(+req.params.id);
+    res.json(user).status(http_status_codes_1.StatusCodes.OK).end();
 }));
-exports.userRouter.post('/', userNameValidation, input_validation_middleware_1.inputValidationMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = yield users_service_1.usersService.createUser(req.body);
-    res.status(http_status_codes_1.StatusCodes.CREATED).json((0, exports.getUserViewModel)(user)).end();
+exports.userRouter.post('/', middlewares_1.userNameValidation, middlewares_1.userLoginValidation, middlewares_1.userPasswordValidation, middlewares_1.inputValidationMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield domain_1.usersService.createUser(req.body);
+    res.status(http_status_codes_1.StatusCodes.CREATED).json(user).end();
 }));
-exports.userRouter.put('/:id', paramIdValidation, userIsFoundValidation, userNameValidation, input_validation_middleware_1.inputValidationMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    yield users_service_1.usersService.updateUser(+req.params.id, req.body);
+exports.userRouter.put('/:id', middlewares_1.paramIdValidation, middlewares_1.userIsFoundValidation, middlewares_1.userNameValidation, middlewares_1.inputValidationMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    yield domain_1.usersService.updateUser(+req.params.id, req.body);
     res.status(http_status_codes_1.StatusCodes.OK).end();
 }));
-exports.userRouter.delete('/:id', paramIdValidation, userIsFoundValidation, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const deleteUserId = yield users_service_1.usersService.deleteUser(+req.params.id);
+exports.userRouter.delete('/:id', middlewares_1.paramIdValidation, middlewares_1.userIsFoundValidation, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const deleteUserId = yield domain_1.usersService.deleteUser(+req.params.id);
     res.status(http_status_codes_1.StatusCodes.OK).json(deleteUserId).end();
 }));
